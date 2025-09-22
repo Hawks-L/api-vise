@@ -1,0 +1,1 @@
+export type CardType = 'Classic' | 'Gold' | 'Platinum' | 'Black' | 'White';
