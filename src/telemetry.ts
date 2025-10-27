@@ -1,22 +1,13 @@
 import 'dotenv/config';
-import { NodeSDK } from '@opentelemetry/sdk-node';
-import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
-import { Resource } from '@opentelemetry/resources';
-import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
-import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 
-import appInsights from "applicationinsights";
+const appInsights = require("applicationinsights");
 
-const conn = process.env.APPLICATIONINSIGHTS_CONNECTION_STRING;
-
-if (!conn) {
-  console.warn("[AI] Falta APPLICATIONINSIGHTS_CONNECTION_STRING");
-} else {
+if (process.env.APPLICATIONINSIGHTS_CONNECTION_STRING) {
   appInsights
-    .setup(conn)
+    .setup(process.env.APPLICATIONINSIGHTS_CONNECTION_STRING)
     .setAutoDependencyCorrelation(true)
     .setAutoCollectRequests(true)
-    .setAutoCollectPerformance(true, true)  // v3 pide 2º arg
+    .setAutoCollectPerformance(true, true)
     .setAutoCollectExceptions(true)
     .setAutoCollectDependencies(true)
     .setAutoCollectConsole(true, true)
@@ -27,45 +18,13 @@ if (!conn) {
   client.context.tags[client.context.keys.cloudRole] = "api-vise";
   client.trackEvent({
     name: "server_started",
-    properties: { environment: process.env.NODE_ENV || "production" },
+    properties: { environment: "production" },
   });
 
-  console.log("[AI] Application Insights inicializado");
+  console.log("✅ Application Insights inicializado correctamente");
+} else {
+  console.warn("⚠️ No se encontró APPLICATIONINSIGHTS_CONNECTION_STRING");
 }
-
-export {};
-
-
-const SERVICE_NAME = process.env.OTEL_SERVICE_NAME || 'api-vise';
-const URL = process.env.OTLP_TRACES_URL || '';
-const AUTH = process.env.OTLP_AUTH_HEADER || '';
-
-if (!URL) throw new Error('Falta OTLP_TRACES_URL');
-if (!AUTH) throw new Error('Falta OTLP_AUTH_HEADER');
-
-
-const traceExporter = new OTLPTraceExporter({
-  url: URL,
-  headers: { Authorization: AUTH },
-});
-
-const sdk = new NodeSDK({
-  resource: new Resource({
-    [SemanticResourceAttributes.SERVICE_NAME]: SERVICE_NAME,
-  }),
-  traceExporter,
-  instrumentations: [getNodeAutoInstrumentations()],
-});
-
-(async () => {
-  try {
-    await sdk.start();
-    console.log('[OTEL] Tracing iniciado correctamente');
-  } catch (err) {
-    console.error('[OTEL] Error al iniciar tracing:', err);
-  }
-})();
-
 
 
 // // src/telemetry.ts
