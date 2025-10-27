@@ -12,6 +12,25 @@ const AUTH = process.env.OTLP_AUTH_HEADER || '';
 if (!URL) throw new Error('Falta OTLP_TRACES_URL');
 if (!AUTH) throw new Error('Falta OTLP_AUTH_HEADER');
 
+import appInsights from "applicationinsights";
+
+appInsights
+  .setup(process.env.APPLICATIONINSIGHTS_CONNECTION_STRING)
+  .setAutoDependencyCorrelation(true)
+  .setAutoCollectRequests(true)
+  .setAutoCollectPerformance(true, true)
+  .setAutoCollectExceptions(true) 
+  .setAutoCollectDependencies(true)
+  .setAutoCollectConsole(true, true)
+  .setUseDiskRetryCaching(true)
+  .start();
+
+// Opcional: etiqueta de rol/servicio
+const client = appInsights.defaultClient;
+client.context.tags[client.context.keys.cloudRole] = "api-vise";
+client.trackEvent({ name: "server_started", properties: { environment: "production" } });
+
+
 const traceExporter = new OTLPTraceExporter({
   url: URL,
   headers: { Authorization: AUTH },
@@ -33,6 +52,7 @@ const sdk = new NodeSDK({
     console.error('[OTEL] Error al iniciar tracing:', err);
   }
 })();
+
 
 
 // // src/telemetry.ts
