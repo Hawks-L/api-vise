@@ -3,15 +3,6 @@ import './telemetry';                // <-- ¡Agregar esta línea primero!
 import dotenv from 'dotenv';
 import app from './app';
 import express from 'express';
-
-dotenv.config();
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`API VISE escuchando en puerto ${PORT}`);
-});
-
-
 import appInsights from "applicationinsights";
 
 appInsights
@@ -29,6 +20,15 @@ appInsights
 const client = appInsights.defaultClient;
 client.context.tags[client.context.keys.cloudRole] = "api-vise";
 client.trackEvent({ name: "server_started", properties: { environment: "production" } });
+
+dotenv.config();
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`API VISE escuchando en puerto ${PORT}`);
+});
+
+
 
 
 // import dotenv from 'dotenv';
