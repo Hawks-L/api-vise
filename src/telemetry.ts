@@ -41,7 +41,7 @@ appInsights
   .setAutoDependencyCorrelation(true)
   .setAutoCollectRequests(true)
   .setAutoCollectPerformance(true)
-  .setAutoCollectExceptions(true)
+  .setAutoCollectExceptions(true) 
   .setAutoCollectDependencies(true)
   .setAutoCollectConsole(true, true)
   .setUseDiskRetryCaching(true)
