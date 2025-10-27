@@ -5,30 +5,43 @@ import { Resource } from '@opentelemetry/resources';
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 
+import appInsights from "applicationinsights";
+
+const conn = process.env.APPLICATIONINSIGHTS_CONNECTION_STRING;
+
+if (!conn) {
+  console.warn("[AI] Falta APPLICATIONINSIGHTS_CONNECTION_STRING");
+} else {
+  appInsights
+    .setup(conn)
+    .setAutoDependencyCorrelation(true)
+    .setAutoCollectRequests(true)
+    .setAutoCollectPerformance(true, true)  // v3 pide 2º arg
+    .setAutoCollectExceptions(true)
+    .setAutoCollectDependencies(true)
+    .setAutoCollectConsole(true, true)
+    .setUseDiskRetryCaching(true)
+    .start();
+
+  const client = appInsights.defaultClient;
+  client.context.tags[client.context.keys.cloudRole] = "api-vise";
+  client.trackEvent({
+    name: "server_started",
+    properties: { environment: process.env.NODE_ENV || "production" },
+  });
+
+  console.log("[AI] Application Insights inicializado");
+}
+
+export {};
+
+
 const SERVICE_NAME = process.env.OTEL_SERVICE_NAME || 'api-vise';
 const URL = process.env.OTLP_TRACES_URL || '';
 const AUTH = process.env.OTLP_AUTH_HEADER || '';
 
 if (!URL) throw new Error('Falta OTLP_TRACES_URL');
 if (!AUTH) throw new Error('Falta OTLP_AUTH_HEADER');
-
-import appInsights from "applicationinsights";
-
-appInsights
-  .setup(process.env.APPLICATIONINSIGHTS_CONNECTION_STRING)
-  .setAutoDependencyCorrelation(true)
-  .setAutoCollectRequests(true)
-  .setAutoCollectPerformance(true, true)
-  .setAutoCollectExceptions(true) 
-  .setAutoCollectDependencies(true)
-  .setAutoCollectConsole(true, true)
-  .setUseDiskRetryCaching(true)
-  .start();
-
-// Opcional: etiqueta de rol/servicio
-const client = appInsights.defaultClient;
-client.context.tags[client.context.keys.cloudRole] = "api-vise";
-client.trackEvent({ name: "server_started", properties: { environment: "production" } });
 
 
 const traceExporter = new OTLPTraceExporter({
