@@ -1,10 +1,19 @@
-# README — API VISE
+# API VISE
 
-Esta documentación explica **qué hace** cada carpeta/archivo del proyecto, **cómo fluye** una petición, y **cómo probar** la API. El objetivo es mapear 1:1 los requisitos de *Actividad VISE* (restricciones y beneficios por tipo de tarjeta) con la implementación.
+[![CI](https://github.com/Hawks-L/api-vise/actions/workflows/ci.yml/badge.svg)](https://github.com/Hawks-L/api-vise/actions/workflows/ci.yml)
 
-> Stack: **Node.js + Express + TypeScript + Zod + Jest**. Persistencia **in-memory** (para la actividad). Endpoints: `POST /client`, `POST /purchase`, `GET /health`.
+API de tarjetas de crédito que decide si un cliente es apto para cada tipo de tarjeta (Classic, Gold, Platinum, Black, White) y calcula los descuentos de cada compra según el día, el monto y el país.
 
----
+| | |
+| --- | --- |
+| Stack | Node.js, Express, TypeScript, Zod |
+| Calidad | 12 pruebas con Jest y Supertest, CI en cada push |
+| Despliegue | Docker, Azure Container Registry y App Service con GitHub Actions |
+| Observabilidad | OpenTelemetry con trazas enviadas a Axiom |
+| Pruebas de API | Hurl contra el contenedor y contra el servicio desplegado |
+
+## Documentación detallada
+
 
 ## 1) Estructura de carpetas
 
